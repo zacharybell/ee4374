@@ -3,6 +3,7 @@
 
 const static char DELIMITER = ' '; 
 
-char ** argtok(char *);
+char** argtok(char*);
+void free_tokens(char**);
 
 #endif

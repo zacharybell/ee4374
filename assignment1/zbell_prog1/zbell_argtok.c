@@ -86,3 +86,12 @@ char** argtok(char* str) {
     return toks;
 }
 
+void free_tokens(char** tokens) {
+	char** tp = tokens;
+	while(*tp) {
+		char* tmp = *tp;
+		tp++;
+		free(tmp);
+	}
+	free (tokens);
+}
