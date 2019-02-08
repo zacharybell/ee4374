@@ -6,20 +6,20 @@
 
 int main() {
 
-	// read input
-	printf("$ ");
-	char buffer[MAX];
-	fgets(buffer, MAX, stdin);
+    // read input
+    printf("$ ");
+    char buffer[MAX];
+    fgets(buffer, MAX, stdin);
 
-	char** tokens = argtok(buffer);
+    char** tokens = argtok(buffer);
 
-	char** tok_ptr = tokens;
-	while(*tok_ptr) {
-		printf("%s\n", *tok_ptr);
-		tok_ptr++;
-	}
+    char** tok_ptr = tokens;
+    while(*tok_ptr) {
+	    printf("%s\n", *tok_ptr);
+	    tok_ptr++;
+    }
 
-	free_tokens(tokens);
+    free_tokens(tokens);
 	
-	return 0;
+    return 0;
 }

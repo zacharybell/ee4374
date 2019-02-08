@@ -87,11 +87,11 @@ char** argtok(char* str) {
 }
 
 void free_tokens(char** tokens) {
-	char** tp = tokens;
-	while(*tp) {
-		char* tmp = *tp;
-		tp++;
-		free(tmp);
-	}
-	free (tokens);
+    char** tp = tokens;
+    while(*tp) {
+	    char* tmp = *tp;
+	    tp++;
+	    free(tmp);
+    }
+    free (tokens);
 }
