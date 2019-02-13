@@ -1,9 +1,11 @@
-zbell_prog1: zbell_prog1.c zbell_argtok.c
+PROG_NAME = zbell_prog1
+OBJECTS   = zbell_prog1.o zbell_argtok.o
+
+$(PROG_NAME): $(OBJECTS)
 	$(CC) $(CFLAGS) $? $(LDFLAGS) -o $@
 
-zbell_prog1.o: zbell_argtok.h
-zbell_argtok.o: zbell_argtok.h
+$(OBJECTS): zbell_argtok.h
 
 clean:
-	rm -f *.o core *.core $@
+	rm -f *.o core *.core $(PROG_NAME)
 
