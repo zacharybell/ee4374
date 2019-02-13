@@ -86,6 +86,7 @@ char** argtok(char* str) {
     return toks;
 }
 
+/* Frees the memory associated with an array of strings. */
 void free_tokens(char** tokens) {
     char** tp = tokens;
     while(*tp) {
