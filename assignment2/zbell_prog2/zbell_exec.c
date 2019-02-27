@@ -3,24 +3,34 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdbool.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "zbell_exec.h"
+#include "zbell_argtok.h"
 
 //
 //	EE 4374 Assignment # 2 Command Executer
 //	Author: Zachary J Bell 
 //
 
+void print_args(char** args) {
+    printf("Debug : ");
+    for ( ; *args; args++) printf("%s ", *args);
+    printf("\n");
+}
+
 int execBackground(char **args)
 {
     int i = 0;
     // check for the ampersand at the end of the set of tokens
-    while(args[i]) i++;
+    while(args[i] != 0) i++;
     
     // traverse to the end of the tokens
     if(args[i-1][0] == '&') // check the last token
     {
-        free(args[i]);
+        free(args[i-1]);
         args[i-1] = NULL;  // remove the ampersand
 
         return 1;
@@ -50,30 +60,85 @@ int next_special(char **args) {
     return -1;
 }
 
+int redir_from(char **args, char *file) {
+    return -1;
+}
+
+int redir_to(char **args, char *file, bool append) {
+    int fd;
+
+    if (append) fd = open(file, O_WRONLY | O_APPEND);
+    else fd = open(file, O_WRONLY);
+
+    printf("Debug1");
+
+    int tmp_stdout = dup(1); // save reference to stdout
+    dup2(fd, 1); // redir sdtout to file 
+
+    int pid = fork();
+
+    if (pid < 0) return -1;
+    if (pid == 0) {
+        execvp(*args, args);
+        fflush(stdout);
+    } else {
+        wait(NULL);
+        dup2(tmp_stdout, 1); // restore stdout
+        close(fd);
+        close(tmp_stdout);
+    }
+
+    return 0;
+}
+
 int execute(char **args) {
 
+    bool append;
     int idx = next_special(args);
 
-    if (idx == -1) execvp(*args, args); 
+    if (idx == -1) {
+        execvp(*args, args); 
+    }
 
-    switch(args[idx]) {
-        case '|':
+    switch (args[idx][0]) {
+        case '|' :
             printf("Not Implemented: Pipe");
-        case '>':
-            printf("Not Implemented: Redirect to file");
-        case '<':
-            printf("Not Implemented: Redirect from file");
+            break;
+        case '>' :
+            // append? (i.e. >>)           
+            append = (args[idx][1] == '>');
 
+            char** l_args = sub_cpy(args, 0, idx);
+            int rcode = redir_to(l_args, args[idx+1], append);
+            
+            free_tokens(l_args);
+
+            return rcode;
+        case '<' :
+            printf("Not Implemented: Redirect from file");
+            break;
+        default :
+            return -1;
     }
 }
 
 int executeCmd(char **args) {
+    
+    int rcode;
+
     if (execBackground(args)) {
         // child process executes and parent doesn't wait
-        if (!fork()) return execute(args);
+        if (!fork()) rcode = execute(args);
+        else rcode = 0;
     } else {
-        // child process executes and parent waits
-        if (fork()) wait(NULL);
-        else return execute(args);
+        if (fork()) {
+            // FIXME: make sure that wait actually works
+            int pid = wait(NULL);
+            if (pid < 0) rcode = -1;
+            else rcode = 0;
+        }
+        else rcode = execute(args);
     }
+
+    return rcode;
 }
