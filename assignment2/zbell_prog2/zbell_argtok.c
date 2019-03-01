@@ -2,7 +2,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
+
+/*
+ * Creates a copy of a subset of tokens from the token array.
+ *
+ * Args:
+ *      args - the token array
+ *      start - the beginning of the subset (must be within bounds in args)
+ *      end - the end of the subset (must be within bounds and greater or equal to start
+ *
+ * Return:
+ *      A copy of a subset of tokens
+ */
+char** sub_cpy(char** args, int start, int end) {
+    char** cpy = (char**)calloc((end-start), sizeof(char*));
+
+    int i;
+    int j = start;
+    for(i = 0; j < end; i++, j++) {
+        cpy[i] = (char*)calloc((strlen(args[j])+1), sizeof(char));
+        strcpy(cpy[i], args[j]);
+    }
+
+    return cpy;
+}
 
 /* 
  * Computes the number of tokens in a string.
@@ -54,7 +79,7 @@ char* add_next_tok(char** toks, char* str) {
     while(*str == DELIMITER) str++;
 
     // copy the token to a new return string
-    char* tok = (char*)malloc(sizeof(char)*(tok_len(str)+1));
+    char* tok = (char*)calloc((tok_len(str)+1), sizeof(char));
     char* p;
     for(p=tok; *str && (*str != DELIMITER); str++, p++) *p=*str;
 
@@ -75,7 +100,7 @@ char* add_next_tok(char** toks, char* str) {
 char** argtok(char* str) {
     
     // +1 for the null terminator
-    char** toks = (char**)malloc(sizeof(char*)*(n_tok(str)+1));
+    char** toks = (char**)calloc((n_tok(str)+1), sizeof(char*));
     
     char** tok_ptr = toks;
     while(*str) {
@@ -90,9 +115,9 @@ char** argtok(char* str) {
 void free_tokens(char** tokens) {
     char** tp = tokens;
     while(*tp) {
-	    char* tmp = *tp;
-	    tp++;
-	    free(tmp);
+        char* tmp = *tp;
+	tp++;
+	free(tmp);
     }
-    free (tokens);
+    free(tokens);
 }

@@ -1,9 +1,22 @@
-#ifndef ZBELL_PROG1_H
-#define ZBELL_PROG1_H
+#ifndef ZBELL_ARGTOK_H
+#define ZBELL_ARGTOK_H
 
 
 // delimiter used to parse tokens
 const static char DELIMITER = ' '; 
+
+/*
+ * Creates a copy of a subset of tokens from the token array.
+ *
+ * Args:
+ *      arg0 - the token array
+ *      arg1 - the beginning of the subset (must be within bounds in args)
+ *      arg2 - the end of the subset (must be within bounds and greater or equal to start
+ *
+ * Return:
+ *      A copy of a subset of tokens
+ */
+char** sub_cpy(char**, int, int);
 
 /* 
  * Tokenizes a string based on the delimiator specified by the DELIMITER variable.
