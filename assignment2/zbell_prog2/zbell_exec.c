@@ -15,11 +15,6 @@
 //	Author: Zachary J Bell 
 //
 
-void print_args(char** args) {
-    printf("Debug : ");
-    for ( ; *args; args++) printf("%s ", *args);
-    printf("\n");
-}
 
 int execBackground(char **args)
 {
@@ -37,6 +32,7 @@ int execBackground(char **args)
     }
     else return 0; 
 }
+
 /**
  * Gets the index of the next special char or returns -1 if not found.
  * Special chars are specified as a string and are intended to be reserved 
@@ -49,6 +45,7 @@ int execBackground(char **args)
  * Return:
  *      The index of the first special char or -1
  */ 
+
 int next_special(char **args) {
     int i;
     char *p;
@@ -60,36 +57,58 @@ int next_special(char **args) {
     return -1;
 }
 
-int redir_from(char **args, char *file) {
-    return -1;
-}
 
-int redir_to(char **args, char *file, bool append) {
+/*
+ * This function handles redirects for the shell. Within the function 
+ * the child process handles execution whereas the parent handles setting up 
+ * and tearing down the file descripters.
+ *
+ * Args:
+ *      args - arguments for the child to execute
+ *      file - the file to redir output to
+ *      append - a flag indicating whether to append to the end of the file
+ */
+
+void redir_to(char **args, char *file, bool append) {
+    
+    // set up file descriptor
     int fd;
-
-    if (append) fd = open(file, O_WRONLY | O_APPEND);
-    else fd = open(file, O_WRONLY);
-
-    printf("Debug1");
-
+    if (append) fd = open(file, O_WRONLY | O_APPEND | O_CREAT, 0666);
+    else fd = open(file, O_WRONLY | O_TRUNC | O_CREAT, 0666);
     int tmp_stdout = dup(1); // save reference to stdout
     dup2(fd, 1); // redir sdtout to file 
 
+    int status = 0;
     int pid = fork();
 
-    if (pid < 0) return -1;
+    if (pid < 0) exit(1);
     if (pid == 0) {
         execvp(*args, args);
-        fflush(stdout);
     } else {
-        wait(NULL);
+        waitpid(pid, &status, 0);
         dup2(tmp_stdout, 1); // restore stdout
         close(fd);
         close(tmp_stdout);
     }
-
-    return 0;
+    // child terminated regularly?
+    if (WIFEXITED(status)) exit(0);
+    else exit(1);
 }
+
+
+/*
+ * This function is intended to help parse through the input and deligate 
+ * the next task to the appropriate function. For instance, if the arg 
+ * array contained a pipe as its next special char, then this function would 
+ * identify the existance of the pipe char, split the tokens accordingly, then 
+ * call the appropriate function (which would set up the pipe).
+ *
+ * Args:
+ *      args - list of token commands
+ *
+ * Returns:
+ *      0 if successful and -1 if an error was detected
+ */
 
 int execute(char **args) {
 
@@ -101,6 +120,7 @@ int execute(char **args) {
     }
 
     switch (args[idx][0]) {
+        // my half hearted attempt at future proofing
         case '|' :
             printf("Not Implemented: Pipe");
             break;
@@ -108,37 +128,48 @@ int execute(char **args) {
             // append? (i.e. >>)           
             append = (args[idx][1] == '>');
 
+            // args before > token
             char** l_args = sub_cpy(args, 0, idx);
-            int rcode = redir_to(l_args, args[idx+1], append);
+
+            redir_to(l_args, args[idx+1], append);
             
             free_tokens(l_args);
-
-            return rcode;
+            return 0;
         case '<' :
             printf("Not Implemented: Redirect from file");
             break;
-        default :
-            return -1;
-    }
+    }    
+    return -1;
 }
+
+
+/*
+ * This function creates a child process to execute the array of token 
+ * args and then waits (or doesn't if & exists at end of input) for the 
+ * child process to complete.
+ *
+ * Args:
+ *      args - list of token commands
+ *
+ * Returns:
+ *      0 if successful and -1 if an error was detected
+ */
 
 int executeCmd(char **args) {
     
-    int rcode;
+    int status = 0;
+    int background = execBackground(args);
+    int pid = fork();
 
-    if (execBackground(args)) {
-        // child process executes and parent doesn't wait
-        if (!fork()) rcode = execute(args);
-        else rcode = 0;
-    } else {
-        if (fork()) {
-            // FIXME: make sure that wait actually works
-            int pid = wait(NULL);
-            if (pid < 0) rcode = -1;
-            else rcode = 0;
-        }
-        else rcode = execute(args);
+    if (pid < 0) return -1; 
+    // child
+    else if (pid == 0) execute(args);
+    // parent
+    else {
+        if (!background) waitpid(pid, &status, 0);
     }
 
-    return rcode;
+    if (WIFEXITED(status)) return 0;
+    else return -1;
 }
+
