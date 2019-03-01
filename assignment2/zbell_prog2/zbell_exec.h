@@ -9,9 +9,17 @@
 
 #define SPECIAL "|><"
 
-int next_special(char **args);
-
-int execBackground(char **args);
+/*
+ * This function creates a child process to execute the array of token 
+ * args and then waits (or doesn't if & exists at end of input) for the 
+ * child process to complete.
+ *
+ * Args:
+ *      args - list of token commands
+ *
+ * Returns:
+ *      0 if successful and -1 if an error was detected
+ */
 
 int executeCmd(char **args);
 
