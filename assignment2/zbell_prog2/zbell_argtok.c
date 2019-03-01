@@ -20,8 +20,10 @@ char** sub_cpy(char** args, int start, int end) {
     char** cpy = (char**)calloc((end-start), sizeof(char*));
 
     int i;
-    for(i = 0; start < end; start++, i++) {
-        cpy[i] = (char*)calloc((strlen(args[start])+1), sizeof(char));
+    int j = start;
+    for(i = 0; j < end; i++, j++) {
+        cpy[i] = (char*)calloc((strlen(args[j])+1), sizeof(char));
+        strcpy(cpy[i], args[j]);
     }
 
     return cpy;
