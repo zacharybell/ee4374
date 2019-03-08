@@ -1,14 +1,11 @@
-// UT El Paso EE 4374 Assignment 3
-// Multi-threaded Prime Number Search
-// Author: ???
-//
+#include <math.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "student_prime.h"
+#include "zbell_prime.h"
 
 /* Global variables that are shared */
 sPRIME_THREAD primeThreadData[MAX_THREADS];
@@ -73,9 +70,22 @@ void *mini_shell(void *param)
 
 }
 
+/**
+ * Determine if a given number is prime.
+ *
+ * Args:
+ *      n - the number
+ * Returns:
+ *      1 if prime, 0 otherwise
+ */
 int test_prime(int n)
 {
+    if (n <= 1) return 0;
+    int k = floor(sqrt(n));
 
-    return 0;
+    int i;
+    for (i=2; i<=k; i++)
+        if (n % i == 0) return 0;
 
+    return 1;
 }
