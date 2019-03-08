@@ -9,4 +9,4 @@ $(PROG_NAME): $(OBJECTS)
 $(OBJECTS): zbell_prime.h
 
 clean:
-	rm *.o; rm zbell_prog3
+	rm *.o *.txt; rm zbell_prog3
