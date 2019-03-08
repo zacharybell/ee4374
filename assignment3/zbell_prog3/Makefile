@@ -1,10 +1,12 @@
-# Complete this rule
-zbell_prog3: zbell_prime.o student_prog3.c
-	gcc ???
+PROG_NAME = zbell_prog3
+OBJECTS   = zbell_prog3.o zbell_prime.o
+CFLAGS    = -pthread
+LDFLAGS   = -lm
 
-# Replace with correct file names
-student_prime.o: student_prime.c student_prime.h
-	gcc -c student_prime.c
+$(PROG_NAME): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+
+$(OBJECTS): zbell_prime.h
 
 clean:
-	rm *.o; rm student_prog3
+	rm *.o; rm zbell_prog3
