@@ -8,7 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "student_prime.h"
+#include "zbell_prime.h"
 
 #define BUFFER_SIZE	1000000
 
@@ -18,24 +18,27 @@ FILE *primeFile;
 FILE *primeThreadFile;
 
 
-int main(int argc, char *argv[])
-{
-  int i, bytesRead, bytesWritten;
-  pthread_t tid[MAX_THREADS]; 
-  pthread_t tidshell;
-  pthread_attr_t attr;
-  time_t before, after;
+int main(int argc, char *argv[]) {
+
+    printf("%d\n", test_prime(12));
+
+
+//  int i, bytesRead, bytesWritten;
+//  pthread_t tid[MAX_THREADS]; 
+//  pthread_t tidshell;
+//  pthread_attr_t attr;
+//  time_t before, after;
 
   /* Record time at start */
-  before = time(NULL);
+//  before = time(NULL);
 
   /* Setup threads to find prime numbers */
-  pthread_attr_init(&attr);
-  numThreads = 2;
+//  pthread_attr_init(&attr);
+//  numThreads = 2;
   
 
   /* Setup a mini shell thread to provide interactivity with the user */
-  pthread_create(&tidshell,&attr,mini_shell,NULL);
+//  pthread_create(&tidshell,&attr,mini_shell,NULL);
   
 #if 0
 
@@ -81,10 +84,10 @@ int main(int argc, char *argv[])
   printf("\nPrime search done after %ld seconds\n", after-before);
 #endif
 
-  sleep(20);
+//  sleep(20);
   
   /* Lastly, kill the interaction thread */
-  pthread_kill(tidshell, SIGKILL);
+//  pthread_kill(tidshell, SIGKILL);
 
   return 0;
 
