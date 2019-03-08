@@ -11,9 +11,29 @@
 sPRIME_THREAD primeThreadData[MAX_THREADS];
 int	numThreads;
 
-void *prime_search(void *param)
-{
 
+/**
+ * Searches a range of numbers for a set of prime numbers and prints the 
+ * numbers to a file. The file will be called "prime#.txt" where # is the 
+ * thread number(num) specifiec in the sPRIME_THREAD argument.
+ *
+ * Args:
+ *      td - the thread data (thread number, current number, low, and high)
+ */
+void *prime_search(sPRIME_THREAD* td)
+{
+    if (td->current < td->low) pthread_exit(NULL);
+    
+    char file_name[100];
+    sprintf(file_name, "prime%u.txt", td->num);
+    FILE* fp = fopen(file_name, "w");
+
+    while (td->current <= td->high) {
+       if (test_prime(td->current)) fprintf(fp, "%u\n", td->current);
+       td->current++;
+    }
+    
+    fclose(fp);
 }
 
 void *mini_shell(void *param)
