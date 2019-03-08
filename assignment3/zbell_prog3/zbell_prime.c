@@ -12,6 +12,27 @@ sPRIME_THREAD primeThreadData[MAX_THREADS];
 int	numThreads;
 
 
+void concat_files(FILE* fp1, FILE* fp2, char* target) {
+    
+    char tmp;
+    FILE* fp = fopen(target, "w");
+
+    // add contents from first file
+    for (tmp = fgetc(fp1); tmp != EOF; tmp = fgetc(fp1)) {
+        fputc(tmp, fp);
+    } 
+    fclose(fp1);
+    
+    // add contents from second file
+    for (tmp = fgetc(fp2); tmp != EOF; tmp = fgetc(fp2)) {
+        fputc(tmp, fp);
+    } 
+    fclose(fp2);
+
+    fclose(fp);
+}
+
+
 /**
  * Searches a range of numbers for a set of prime numbers and prints the 
  * numbers to a file. The file will be called "prime#.txt" where # is the 
