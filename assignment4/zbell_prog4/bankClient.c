@@ -8,6 +8,24 @@
 #include "banking.h"
 
 
+/**
+ * createTransaction
+ * ----------------------------------------------------------------------------
+ * Creates a transaction struct that can be used to encapsulate transaction 
+ * requests to the server.
+ * 
+ * Transactions are required to have an existing transaction type, otherwise 
+ * the created transaction will have a transaction value of -1 to indicate that 
+ * the created transaction is invalid.
+ * 
+ * Args:
+ *  type - the transaction type
+ *  accountNum - the unique number of the account
+ *  value - the value associated with the transaction
+ * 
+ * Returns:
+ *  a transaction
+ */
 sBANK_PROTOCOL createTransaction(char type, int acctNum, int value) {
 
     int transType = -1;
@@ -30,6 +48,20 @@ sBANK_PROTOCOL createTransaction(char type, int acctNum, int value) {
     return transaction;
 }
 
+
+/**
+ * sendTransaction
+ * ----------------------------------------------------------------------------
+ * Sends a transaction using the provided socket and returns the transaction 
+ * response from the bank server.
+ * 
+ * Args:
+ *  sock - a TCP socket that has been connected to the bank server
+ *  transaction - a transaction containing information to be sent to the server
+ * 
+ * Returns:
+ *  a response transaction
+ */
 sBANK_PROTOCOL* sendTransaction(int sock, sBANK_PROTOCOL transaction) { 
     
     write(sock, &transaction, sizeof(transaction));
@@ -40,6 +72,19 @@ sBANK_PROTOCOL* sendTransaction(int sock, sBANK_PROTOCOL transaction) {
     return (sBANK_PROTOCOL*) buffer;
 } 
 
+
+/**
+ * setupTCPClient
+ * ----------------------------------------------------------------------------
+ * Sets up a client TCP sock by creating handshake with bank server.
+ * 
+ * Args:
+ *  servIPAddr - the IP of the server
+ *  portNum - the open TCP port
+ * 
+ * Returns:
+ *  a connected socket
+ */
 int setupTCPClient(char *servIPAddr, unsigned int portNum)
 {
     int clientSocket;
@@ -68,6 +113,7 @@ int setupTCPClient(char *servIPAddr, unsigned int portNum)
     return clientSocket;
 }
 
+
 int main(int argc, char **argv)
 {
     int mySocket;
@@ -94,10 +140,15 @@ int main(int argc, char **argv)
 
     /* Create transaction */
     sBANK_PROTOCOL transaction = createTransaction(argv[3][0], atoi(argv[4]), atoi(argv[5])); 
-    if (transaction.trans == -1) return -1;
+    if (transaction.trans == -1) {
+        printf("Invalid transaction created: use proper transaction code\n");
+        return -1;
+    }
 
+    /* Send transaction and recieve response */
     sBANK_PROTOCOL* response = sendTransaction(mySocket, transaction);
 
+    /* Print transaction response details */
     printf("Response: \n");
     printf("Account#:%d  Value:%d\n", response->acctnum, response->value);
     close(mySocket);
