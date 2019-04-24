@@ -98,6 +98,7 @@ int main(int argc, char **argv)
 
     sBANK_PROTOCOL* response = sendTransaction(mySocket, transaction);
 
-    printf("\n%d\n", response->value);
+    printf("Response: \n");
+    printf("Account#:%d  Value:%d\n", response->acctnum, response->value);
     close(mySocket);
 }
